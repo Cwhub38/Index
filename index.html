@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App Easy Tutorials</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="card">
+    <div class="search">
+      <input type="text" id="searchInput" placeholder="Enter search" spellcheck="false">
+      <button><img src="images/search.png"></button>
+    </div>
+    <div id="googleResults" class="google-results"></div>
+  </div>
+
+  <script>
+    const searchInput = document.getElementById('searchInput');
+    const googleResults = document.getElementById('googleResults');
+
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.toLowerCase();
+      if (query.trim() !== '') {
+        fetchGoogleResults(query);
+      } else {
+        googleResults.innerHTML = '';
+      }
+    });
+
+    function fetchGoogleResults(query) {
+      const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+      fetch(url)
+        .then(response => response.text())
+        .then(data => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(data, 'text/html');
+          const results = doc.querySelectorAll('.g .rc .r a');
+          googleResults.innerHTML = '';
+
+          // Check if the query is "baseball" or "Baseball"
+          if (query === 'baseball' || query === 'Baseball') {
+            const mlbResult = document.createElement('div');
+            mlbResult.classList.add('google-result');
+            mlbResult.innerHTML = `<a href="https://www.mlb.com/" target="_blank">MLB.com</a>`;
+            googleResults.appendChild(mlbResult);
+          }
+
+          results.forEach(result => {
+            const link = result.getAttribute('href');
+            const title = result.textContent;
+            const resultElement = document.createElement('div');
+            resultElement.classList.add('google-result');
+            resultElement.innerHTML = `<a href="${link}" target="_blank">${title}</a>`;
+            googleResults.appendChild(resultElement);
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching Google results:', error);
+          googleResults.innerHTML = '';
+        });
+    }
+  </script>
+</body>
+</html>
